@@ -12,10 +12,12 @@ void thermoStat()
         if (tempC > upperLimit)
         {
             //Turn on
+            
         }
         if (tempC < lowerLimit)
         {
             //Turn off
+
         }
     }
 }
