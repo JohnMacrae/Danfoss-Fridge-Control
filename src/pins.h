@@ -20,7 +20,7 @@
 #define FAULTLED 26
 #define FAULTIN 27
 #define BUZZER 32
-#define PWM 33
+#define PWM 26
 #define TEMPSIG2 35
 
 void setPins()
@@ -30,7 +30,6 @@ pinMode(FAULTLED, OUTPUT);
 digitalWrite(FAULTLED, LOW);
 
 pinMode(PWM, OUTPUT);
-digitalWrite(PWM, HIGH);
 
 pinMode(VSENS, INPUT);
 }

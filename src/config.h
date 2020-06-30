@@ -55,7 +55,7 @@ bool saveConfig()
     Serial.println(MQ_user);
     Serial.println(MQ_pass);
     Serial.println(host);
-    Serial.println(MQ_server);
+    Serial.println(BrokerIP);
     Serial.println(MQ_client);
     Serial.println(vers);
     json["WifiSSID"] = ssid;
@@ -63,7 +63,7 @@ bool saveConfig()
     json["ControllerUser"] = MQ_user;
     json["ControllerPassword"] = MQ_pass;
     json["Host"] = host;
-    json["BrokerIP"] = MQ_server;
+    json["BrokerIP"] = BrokerIP;
     json["Version"] = vers;
     json["Broker"] = MQ_client;
 
@@ -174,7 +174,7 @@ bool loadConfig()
         strlcpy(Settings.ControllerUser, json["ControllerUser"] | MQ_user, sizeof(Settings.ControllerUser));             // <- destination's capacity
         strlcpy(Settings.ControllerPassword, json["ControllerPassword"] | MQ_pass, sizeof(Settings.ControllerPassword)); // <- destination's capacity
         strlcpy(Settings.Broker, json["Broker"] | MQ_client, sizeof(Settings.Broker));                                   // <- destination's capacity
-        strlcpy(Settings.BrokerIP, json["BrokerIP"] | MQ_server, sizeof(Settings.BrokerIP));                             // <- destination's capacity
+        strlcpy(Settings.BrokerIP, json["BrokerIP"] | BrokerIP, sizeof(Settings.BrokerIP));                             // <- destination's capacity
         strlcpy(Settings.Host, json["Host"] | host, sizeof(Settings.Host));                                              // <- destination's capacity
         strlcpy(Settings.Version, json["Version"] | vers, sizeof(Settings.Version));                                     // <- destination's capacity
 

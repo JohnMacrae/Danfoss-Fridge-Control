@@ -176,6 +176,7 @@ void setup(void)
   float tempC = -99;
   tempC = sensors.getTempC(insideThermometer);
   Serial.println(tempC);
+  setupPWM();
 }
 
 // function to print the temperature for a device
@@ -229,4 +230,6 @@ void loop(void)
       fault.numberKeyPresses = 0;
     }
   }
+
+  runled();
 }
