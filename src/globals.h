@@ -11,3 +11,6 @@ float lowerLimit = 2.5;
 float upperLimit = 5.0;
 
 bool timeOverride = false;
+
+int brightness = 120; // how bright the LED is
+int fadeAmount = 5;   // how many points to fade the LED by

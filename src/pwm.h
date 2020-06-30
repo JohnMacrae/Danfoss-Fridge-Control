@@ -2,16 +2,44 @@
 
 void setupPWM()
 {
-    const int freq = 5000;
-    const int ledChannel = 0;
-    const int resolution = 8;
 
-    // configure LED PWM functionalitites
-    ledcSetup(ledChannel, freq, resolution);
+// use first channel of 16 channels (started from zero)
+#define LEDC_CHANNEL_0 8
 
-    // attach the channel to the GPIO to be controlled
-    ledcAttachPin(PWM, ledChannel);
+// use 13 bit precission for LEDC timer
+#define LEDC_TIMER_13_BIT 13
 
-    int dutyCycle = 254;
-    ledcWrite(ledChannel, dutyCycle);
+// use 5000 Hz as a LEDC base frequency
+#define LEDC_BASE_FREQ 5000
+
+// fade LED PIN (replace with LED_BUILTIN constant for built-in LED)
+
+    ledcSetup(LEDC_CHANNEL_0, LEDC_BASE_FREQ, LEDC_TIMER_13_BIT);
+    ledcAttachPin(PWM, LEDC_CHANNEL_0);
+}
+
+void ledcAnalogWrite(uint8_t channel, uint32_t value, uint32_t valueMax = 255)
+{
+    // calculate duty, 8191 from 2 ^ 13 - 1
+    uint32_t duty = (8191 / valueMax) * min(value, valueMax);
+
+    // write duty to LEDC
+    ledcWrite(channel, duty);
+}
+
+void runled()
+{
+    ledcAnalogWrite(LEDC_CHANNEL_0, brightness);
+
+    // change the brightness for next time through the loop:
+    brightness = brightness + fadeAmount;
+
+    // reverse the direction of the fading at the ends of the fade:
+    if (brightness <= 0 || brightness >= 255)
+    {
+        fadeAmount = -fadeAmount;
+    }
+    // wait for 30 milliseconds to see the dimming effect
+
+    delay(30);
 }
