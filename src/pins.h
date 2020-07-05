@@ -25,11 +25,14 @@
 
 void setPins()
 {
-pinMode(FAULTIN, INPUT);
+//pinMode(FAULTIN, INPUT);
 pinMode(FAULTLED, OUTPUT);
 digitalWrite(FAULTLED, LOW);
 
 pinMode(PWM, OUTPUT);
+
+//pinMode(BUZZER, OUTPUT);
+//digitalWrite(BUZZER, HIGH);
 
 pinMode(VSENS, INPUT);
 }

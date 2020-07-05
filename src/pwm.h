@@ -27,15 +27,15 @@ void ledcAnalogWrite(uint8_t channel, uint32_t value, uint32_t valueMax = 255)
     ledcWrite(channel, duty);
 }
 
-void runled()
+void runled(int level)
 {
-    ledcAnalogWrite(LEDC_CHANNEL_0, brightness);
+    ledcAnalogWrite(LEDC_CHANNEL_0, level);
 
-    // change the brightness for next time through the loop:
-    brightness = brightness + fadeAmount;
+    // change the compSpeed for next time through the loop:
+    compSpeed = compSpeed + fadeAmount;
 
     // reverse the direction of the fading at the ends of the fade:
-    if (brightness <= 0 || brightness >= 255)
+    if (compSpeed <= 0 || compSpeed >= 255)
     {
         fadeAmount = -fadeAmount;
     }
@@ -43,3 +43,5 @@ void runled()
 
     delay(30);
 }
+
+
