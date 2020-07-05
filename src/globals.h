@@ -12,5 +12,13 @@ float upperLimit = 5.0;
 
 bool timeOverride = false;
 
-int brightness = 120; // how bright the LED is
+int compSpeed = 120; // how bright the LED is
 int fadeAmount = 5;   // how many points to fade the LED by
+
+uint64_t runStart = 0; // time the compressor started
+int level = 0; // PWM level
+bool runFlag = true;
+uint64_t runTime = 0;
+
+uint32_t diff = 0;
+unsigned long lasttime=0;
