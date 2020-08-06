@@ -18,7 +18,7 @@
 #include "pwm.h"
 #include "thermoStat.h"
 
-#define RESOLUTION 11
+#define RESOLUTION 12
 
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
 OneWire oneWire(TEMPSIG);
@@ -130,7 +130,6 @@ void setup(void)
 
   setPins();
 
-  pinMode(FAULTIN, INPUT);
   attachInterrupt(FAULTIN, isr, RISING);
 
   fileSystemCheck();
@@ -182,14 +181,16 @@ void setup(void)
 
   Serial.print("Device 0 Resolution: ");
   Serial.print(sensors.getResolution(insideThermometer), DEC);
-   Serial.println();
+  Serial.println();
   sensors.requestTemperatures(); // Send the command to get temperatures
   vTaskDelay(300);
   float tempC = -99;
   tempC = sensors.getTempC(insideThermometer);
   Serial.println(tempC);
-  
+
   setupPWM();
+
+  myreconnect();
 }
 
 void handleFault()
@@ -249,10 +250,12 @@ void resetFaultTimer()
 }
 long lastReconnectAttempt = 0;
 
-boolean reconnect() {
-  if (client.connect(Settings.Host, Settings.ControllerUser, Settings.ControllerPassword)) {
+boolean reconnect()
+{
+  if (client.connect(Settings.Host, Settings.ControllerUser, Settings.ControllerPassword))
+  {
     // Once connected, publish an announcement...
-    client.publish("outTopic","hello world");
+    client.publish("outTopic", "hello world");
     // ... and resubscribe
     //client.subscribe("inTopic");
   }
@@ -261,63 +264,90 @@ boolean reconnect() {
 // function to print the temperature for a device
 void printTemperature(DeviceAddress deviceAddress)
 {
- // sensors.setWaitForConversion(false); // makes it async
-  sensors.requestTemperatures();
- // sensors.setWaitForConversion(true);
- 
-  delay(750 / (1 << (12 - RESOLUTION)));
-  tempC = sensors.getTempCByIndex(0);
+  do
+  {
+    sensors.requestTemperatures();
+    vTaskDelay(750 / (1 << (12 - RESOLUTION)));
+    tempC = sensors.getTempCByIndex(0);
+  } while ((tempC < -10) || (tempC > 50));
 
   // get temperature
   //Serial.println();
-  Serial.print("Temperature: ");
-  Serial.println(tempC);
+  if (tempC > -100)
+  {
+    Serial.print("Temperature: ");
+    Serial.println(tempC);
 
-  strcpy(pTopic, "");
-  strcat(pTopic, Settings.Host);
-  strcat(pTopic, "/tempc");
-  snprintf(msg, 63, "%f", tempC);
- 
- if (!client.connected()) {
-long now = millis();
-    if (now - lastReconnectAttempt > 5000) {
-      lastReconnectAttempt = now;
-      // Attempt to reconnect
-      if (reconnect()) {
-        lastReconnectAttempt = 0;
+    strcpy(pTopic, "");
+    strcat(pTopic, Settings.Host);
+    strcat(pTopic, "/tempc");
+    snprintf(msg, 63, "%f", tempC);
+
+    myreconnect();
+
+    if (!client.connected())
+    {
+      long now = millis();
+      if (now - lastReconnectAttempt > 5000)
+      {
+        lastReconnectAttempt = now;
+        // Attempt to reconnect
+        if (reconnect())
+        {
+          lastReconnectAttempt = 0;
+        }
       }
     }
- }
-  if (client.connect(Settings.Host, Settings.ControllerUser, Settings.ControllerPassword))
-  {
-    client.publish(pTopic, msg);
+    if (client.connect(Settings.Host, Settings.ControllerUser, Settings.ControllerPassword))
+    {
+      client.publish(pTopic, msg);
+      /*
+      Serial.print(Settings.Host);
+      Serial.print(" : ");
+      Serial.print(pTopic);
+      Serial.print(" : ");
+      Serial.println(msg);
+      */
+    }
   }
-
-/*
-digitalWrite(BUZZER, HIGH);
-vTaskDelay(01000);
-digitalWrite(BUZZER, LOW);
-*/
 }
+
+void runpins()
+{
+  digitalWrite(BUZZER, LOW);
+  vTaskDelay(100);
+  digitalWrite(BUZZER, HIGH);
+  vTaskDelay(100);
+  digitalWrite(BUZZER, LOW);
+}
+
 /*
  * Main function. It will request the tempC from the sensors and display on Serial.
  */
 void loop(void)
 {
   ArduinoOTA.handle();
-   client.loop();
+  client.loop();
+
   if (thermoCounter > 0)
   {
     portENTER_CRITICAL(&timerMux);
     thermoCounter--;
     portEXIT_CRITICAL(&timerMux);
-    printTemperature(insideThermometer); // Use a simple function to print out the data
-    myreconnect();
+
+    do
+    {
+      printTemperature(insideThermometer); // Use a simple function to print out the data
+    } while ((tempC < -10) && (tempC > 50));
+
+    runled(compSpeed);
+
+    runpins();
   }
-    
+
   handleFault();
 
   resetFaultTimer();
 
-  runled(compSpeed);
+  boot = false;
 }
