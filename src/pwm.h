@@ -30,8 +30,8 @@ void ledcAnalogWrite(uint8_t channel, uint32_t value, uint32_t valueMax = 255)
 
 void runled(int level)
 {
-    // change the compSpeed for next time through the loop:
-    compSpeed = compSpeed + fadeAmount;
+    ledcAnalogWrite(LEDC_CHANNEL_0, level);
+
 
     // reverse the direction of the fading at the ends of the fade:
     if (compSpeed < 0 || compSpeed >= 255)

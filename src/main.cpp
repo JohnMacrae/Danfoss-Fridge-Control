@@ -18,8 +18,7 @@
 #include "pwm.h"
 #include "thermoStat.h"
 
-#define RESOLUTION 12
-
+#define RESOLUTION 11
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
 OneWire oneWire(TEMPSIG);
 
@@ -130,6 +129,8 @@ void setup(void)
 
   setPins();
 
+  pinMode(FAULTIN, INPUT);
+
   attachInterrupt(FAULTIN, isr, RISING);
 
   fileSystemCheck();
@@ -181,7 +182,7 @@ void setup(void)
 
   Serial.print("Device 0 Resolution: ");
   Serial.print(sensors.getResolution(insideThermometer), DEC);
-  Serial.println();
+   Serial.println();
   sensors.requestTemperatures(); // Send the command to get temperatures
   vTaskDelay(300);
   float tempC = -99;
@@ -260,6 +261,7 @@ boolean reconnect()
     //client.subscribe("inTopic");
   }
   return client.connected();
+
 }
 // function to print the temperature for a device
 void printTemperature(DeviceAddress deviceAddress)
@@ -328,6 +330,7 @@ void loop(void)
 {
   ArduinoOTA.handle();
   client.loop();
+
 
   if (thermoCounter > 0)
   {
