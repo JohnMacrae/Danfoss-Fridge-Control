@@ -18,22 +18,25 @@
 #define SDA 23
 #define SCL 25
 #define FAULTLED 26
-#define FAULTIN 27
+#define FAULTIN 26
 #define BUZZER 32
-#define PWM 26
+#define PWM 33
 #define TEMPSIG2 35
 
 void setPins()
 {
-//pinMode(FAULTIN, INPUT);
-pinMode(FAULTLED, OUTPUT);
-digitalWrite(FAULTLED, LOW);
+    pinMode(FAULTLED, OUTPUT);
+    digitalWrite(FAULTLED, LOW);
 
-pinMode(PWM, OUTPUT);
+    pinMode(PWM, OUTPUT);
+    digitalWrite(PWM, HIGH);
 
-//pinMode(BUZZER, OUTPUT);
-//digitalWrite(BUZZER, HIGH);
+    pinMode(BUZZER, OUTPUT);
+    digitalWrite(BUZZER, LOW);
 
-pinMode(VSENS, INPUT);
+    pinMode(VSENS, INPUT);
+    pinMode(FAULTIN, INPUT);
+
+pinMode(TEMPSIG, OUTPUT);
+
 }
-

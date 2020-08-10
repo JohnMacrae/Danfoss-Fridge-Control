@@ -1,5 +1,7 @@
 #include <Arduino.h>
 
+bool boot = true;
+
 struct MQMessage
 {
   char topic[32];
@@ -62,67 +64,76 @@ void myreconnect()
 
         if (client.connect(Settings.Host, Settings.ControllerUser, Settings.ControllerPassword))
         {
-          client.publish("outTopic", "reconnect");
-          Serial.println("Published");
+          if (boot)
+          {
+            client.publish("fridge/mqstatus", "1");
+          }
+          else
+          {
+            client.publish("fridge/mqstatus", "0");
+          }
         }
-        else
-        {
-          Serial.print("failed, rc=");
-          Serial.print(client.state());
-          delay(500);
+          else
+          {
+            Serial.print("failed, rc=");
+            Serial.print(client.state());
+            delay(500);
+          }
+          count++;
         }
-        count++;
+      }
+    }
+    else
+    { // WiFi IS Connected
+      if (client.connect(Settings.Host, Settings.ControllerUser, Settings.ControllerPassword))
+      {
+        if(boot)
+          {
+          client.publish("fridge/mqstatus", "1");
+        }else{
+          client.publish("fridge/mqstatus", "0");
+        }
+      }
+      else
+      {
+        Serial.print("failed, rc=");
+        Serial.print(client.state());
+        // Serial.println(" try again in 1 second");
+        // Wait a second before retrying
+        delay(500);
       }
     }
   }
-  else
-  { // WFi IS Connected
-    if (client.connect(Settings.Host, Settings.ControllerUser, Settings.ControllerPassword))
-    {
-      client.publish("outTopic", "reconnect");
-      // client.subscribe("suspend");
-      // Serial.println("Published");
-    }
-    else
-    {
-      Serial.print("failed, rc=");
-      Serial.print(client.state());
-      // Serial.println(" try again in 1 second");
-      // Wait a second before retrying
-      delay(500);
-    }
-  }
-}
 
-void MQ_Publish(char *mytopic, char *mymsg)
-{
-  char pTopic[64] = {0};
-  strcat(pTopic, Settings.Host);
-  strcat(pTopic, "/");
-  strcat(pTopic, mytopic);
-  //strcpy(mqMessage.message, mymsg);
-  client.publish(pTopic, mymsg);
-}
-
-void PrintSettings()
-{
-  Serial.println("Printing...");
-  char pTopic[30] = {0};
-  strcat(pTopic, Settings.Host);
-  strcat(pTopic, "/");
-  strcat(pTopic, "outTopic");
-  if (client.connect(host, MQ_user, MQ_pass))
+  void MQ_Publish(char *mytopic, char *mymsg)
   {
-    client.publish(pTopic, Settings.WifiSSID);
-    client.publish(pTopic, Settings.ControllerUser);
-    client.publish(pTopic, Settings.Host);
-    client.publish(pTopic, Settings.BrokerIP);
-    client.publish(pTopic, Settings.Version);
-    Serial.print(pTopic);
+    char pTopic[64] = {0};
+    strcat(pTopic, Settings.Host);
+    strcat(pTopic, "/");
+    strcat(pTopic, mytopic);
+    //strcpy(mqMessage.message, mymsg);
+    /*
+  client.publish(pTopic, mymsg);
+  Serial.println(pTopic);
+  Serial.println(" : ");
+  Serial.println(mymsg);
+  */
   }
-}
 
-/*
-snprintf (msg, 75, "%ld", answer);
-  MQ_Publish(LVCLED, msg);
-*/
+  void PrintSettings()
+  {
+    Serial.println("Printing...");
+    char pTopic[30] = {0};
+    strcat(pTopic, Settings.Host);
+    strcat(pTopic, "/");
+    strcat(pTopic, "outTopic");
+    if (client.connect(host, MQ_user, MQ_pass))
+    {
+      client.publish(pTopic, Settings.WifiSSID);
+      client.publish(pTopic, Settings.ControllerUser);
+      client.publish(pTopic, Settings.Host);
+      client.publish(pTopic, Settings.BrokerIP);
+      client.publish(pTopic, Settings.Version);
+      Serial.print(pTopic);
+    }
+  }

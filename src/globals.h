@@ -12,6 +12,7 @@ float upperLimit = 5.0;
 
 bool timeOverride = false;
 
+
 int compSpeed = 120; // how bright the LED is
 int fadeAmount = 5;   // how many points to fade the LED by
 
