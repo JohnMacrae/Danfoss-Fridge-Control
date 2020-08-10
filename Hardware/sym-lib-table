@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name Fridge-Controller1.1-rescue)(type Legacy)(uri "${KIPRJMOD}/Fridge Controller1.1-rescue.lib")(options "")(descr ""))
+  (lib (name Fridge-Controller-rescue)(type Legacy)(uri "${KIPRJMOD}/Fridge Controller-rescue.lib")(options "")(descr ""))
+)
