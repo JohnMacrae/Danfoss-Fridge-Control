@@ -1,5 +1,5 @@
 // AUTOMATICALLY GENERATED FILE. PLEASE DO NOT MODIFY IT MANUALLY
-
+//
 // PIO Unified Debugger
 //
 // Documentation: https://docs.platformio.org/page/plus/debugging.html
@@ -12,20 +12,22 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug",
-            "executable": "c:/Users/john/Documents/PlatformIO/Projects/Simple DS18b20/.pio/build/OTA/firmware.elf",
-            "toolchainBinDir": "C:/Users/john/.platformio/packages/toolchain-xtensa32/bin",
+            "executable": "C:/Users/john/IDrive-Sync/Arduino Projects/_My_Projects/Danfoss-Fridge-Control/Firmware/.pio/build/OTA/firmware.elf",
+            "projectEnvName": "OTA",
+            "toolchainBinDir": "C:/.platformio/packages/toolchain-xtensa32@2.50200.97/bin",
+            "internalConsoleOptions": "openOnSessionStart",
             "preLaunchTask": {
                 "type": "PlatformIO",
-                "task": "Pre-Debug"
-            },
-            "internalConsoleOptions": "openOnSessionStart"
+                "task": "Pre-Debug (OTA)"
+            }
         },
         {
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (skip Pre-Debug)",
-            "executable": "c:/Users/john/Documents/PlatformIO/Projects/Simple DS18b20/.pio/build/OTA/firmware.elf",
-            "toolchainBinDir": "C:/Users/john/.platformio/packages/toolchain-xtensa32/bin",
+            "executable": "C:/Users/john/IDrive-Sync/Arduino Projects/_My_Projects/Danfoss-Fridge-Control/Firmware/.pio/build/OTA/firmware.elf",
+            "projectEnvName": "OTA",
+            "toolchainBinDir": "C:/.platformio/packages/toolchain-xtensa32@2.50200.97/bin",
             "internalConsoleOptions": "openOnSessionStart"
         }
     ]

@@ -8,8 +8,8 @@
 #include <ArduinoOTA.h>
 #include <FS.h>
 #include <SPIFFS.h>
-#include <OneWire.h>
-#include <DallasTemperature.h>
+//#include <OneWire.h>
+//#include <DallasTemperature.h>
 #include "globals.h"
 #include "credentials.h"
 #include "config.h"
@@ -17,16 +17,35 @@
 #include "pins.h"
 #include "pwm.h"
 #include "thermoStat.h"
+#include "owng.h"
+#include "OneWireNg_CurrentPlatform.h"
+#include "drivers/DSTherm.h"
 
-#define RESOLUTION 11
+//#define RESOLUTION 11
+#define OW_PIN 25
+
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
-OneWire oneWire(TEMPSIG);
+//OneWire oneWire(TEMPSIG);
 
 // Pass our oneWire reference to Dallas Temperature.
-DallasTemperature sensors(&oneWire);
+//DallasTemperature sensors(&oneWire);
 
 // arrays to hold device address
-DeviceAddress insideThermometer;
+//DeviceAddress insideThermometer;
+
+/*
+ * Set to true for parasitically powered sensors.
+ */
+#define PARASITE_POWER false
+
+/*
+ * Uncomment for power provided by a switching
+ * transistor and controlled by this pin.
+ */
+//#define PWR_CTRL_PIN    9
+
+//static OneWireNg *ow = NULL;
+//static DSTherm *dsth = NULL;
 
 volatile int interruptCounter = 0;
 int totalInterruptCounter = 0;
@@ -85,7 +104,7 @@ void IRAM_ATTR isr()
 }
 
 // function to print a device address
-void printAddress(DeviceAddress deviceAddress)
+/*void printAddress(DeviceAddress deviceAddress)
 {
   for (uint8_t i = 0; i < 8; i++)
   {
@@ -94,7 +113,7 @@ void printAddress(DeviceAddress deviceAddress)
     Serial.print(deviceAddress[i], HEX);
   }
 }
-
+*/
 void OTA_Setup()
 {
   ArduinoOTA.setHostname(host);
@@ -106,9 +125,8 @@ void OTA_Setup()
 
   });
 
-  ArduinoOTA.onError([](ota_error_t error) {
-    ESP.restart();
-  });
+  ArduinoOTA.onError([](ota_error_t error)
+                     { ESP.restart(); });
 
   /* setup the OTA server */
   ArduinoOTA.begin();
@@ -133,8 +151,9 @@ void setup(void)
 
   attachInterrupt(FAULTIN, isr, RISING);
 
-  fileSystemCheck();
+  OWsetup();
 
+  fileSystemCheck();
   loadConfig();
   WiFi.mode(WIFI_STA);
   WiFi.begin(Settings.WifiSSID, Settings.WifiKey);
@@ -153,40 +172,10 @@ void setup(void)
 
   OTA_Setup();
 
-  Serial.println("Dallas Temperature IC Control Library Demo");
-
-  // locate devices on the bus
-  Serial.print("Locating devices...");
-  sensors.begin();
-  Serial.print("Found ");
-  Serial.print(sensors.getDeviceCount(), DEC);
-  Serial.println(" devices.");
-
-  // report parasite power requirements
-  Serial.print("Parasite power is: ");
-  if (sensors.isParasitePowerMode())
-    Serial.println("ON");
-  else
-    Serial.println("OFF");
-
-  if (!sensors.getAddress(insideThermometer, 0))
-    Serial.println("Unable to find address for Device 0");
-
-  // show the addresses we found on the bus
-  Serial.print("Device 0 Address: ");
-  printAddress(insideThermometer);
-  Serial.println();
-
-  // set the resolution to 9 bit (Each Dallas/Maxim device is capable of several different resolutions)
-  sensors.setResolution(insideThermometer, RESOLUTION);
-
-  Serial.print("Device 0 Resolution: ");
-  Serial.print(sensors.getResolution(insideThermometer), DEC);
-   Serial.println();
-  sensors.requestTemperatures(); // Send the command to get temperatures
+  //sensors.requestTemperatures(); // Send the command to get temperatures
   vTaskDelay(300);
   float tempC = -99;
-  tempC = sensors.getTempC(insideThermometer);
+  //tempC = sensors.getTempC(insideThermometer);
   Serial.println(tempC);
 
   setupPWM();
@@ -261,9 +250,9 @@ boolean reconnect()
     //client.subscribe("inTopic");
   }
   return client.connected();
-
 }
 // function to print the temperature for a device
+/*
 void printTemperature(DeviceAddress deviceAddress)
 {
   do
@@ -303,16 +292,17 @@ void printTemperature(DeviceAddress deviceAddress)
     if (client.connect(Settings.Host, Settings.ControllerUser, Settings.ControllerPassword))
     {
       client.publish(pTopic, msg);
-      /*
+      
       Serial.print(Settings.Host);
       Serial.print(" : ");
       Serial.print(pTopic);
       Serial.print(" : ");
       Serial.println(msg);
-      */
+      
     }
   }
 }
+*/
 
 void runpins()
 {
@@ -331,7 +321,6 @@ void loop(void)
   ArduinoOTA.handle();
   client.loop();
 
-
   if (thermoCounter > 0)
   {
     portENTER_CRITICAL(&timerMux);
@@ -340,7 +329,7 @@ void loop(void)
 
     do
     {
-      printTemperature(insideThermometer); // Use a simple function to print out the data
+      OWloop();
     } while ((tempC < -10) && (tempC > 50));
 
     runled(compSpeed);
